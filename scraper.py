@@ -11,9 +11,11 @@ reddit = praw.Reddit(client_id=config.client_id,
                      username=config.username,
                      password=config.password)
 
-subreddit = reddit.subreddit('memes')
+sub = raw_input("Subreddit to scrape: ")
+subreddit = reddit.subreddit(sub)
 
-with open('./meme_urls.csv', mode='w') as file:
-    writer = csv.writer(file, delimiter=",", quotechar='"', quoting=csv.QUOTE_NONE)
+with open('./sub_urls.csv', mode='w') as file:
+    writer = csv.writer(file, quotechar='"', quoting=csv.QUOTE_NONE)
     for submission in subreddit.top(limit=200):
-        writer.writerow([submission.url])
+            writer.writerow([submission.id, submission.url])
+    print("Done!")
