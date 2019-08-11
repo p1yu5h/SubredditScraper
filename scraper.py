@@ -5,6 +5,9 @@ import pandas as pd
 import datetime as dt
 import config
 import csv
+import requests
+from multiprocessing.pool import ThreadPool
+import os
 
 reddit = praw.Reddit(
     client_id=config.client_id,
@@ -15,6 +18,9 @@ reddit = praw.Reddit(
 )
 
 sub = raw_input("Subreddit to scrape: ")
+limit = int(input("Results limit: "))
+
+urls = []
 
 def sub_exists(sub):
     try:
@@ -24,10 +30,53 @@ def sub_exists(sub):
         print("Error: Subreddit r/{} Not Found...".format(sub))
         return False
 
+def get_filename_from_url(url):
+        # assumes that the last segment after the / represents the file name
+        # if url is abc/xyz/file.txt, the file name will be file.txt
+        return url[url.rfind("/") + 1:]
+
+def get_filetype(file_name):
+        if (file_name.find(".mp4") != -1):
+                return "mp4"
+        elif (file_name.find(".jpg") != -1 or file_name.find(".png") != -1):
+                return "img"
+        else: 
+                return "default"
+
+def download_url(url):
+        file_name = get_filename_from_url(url)
+        r = requests.get(url, stream=True)
+        if r.status_code == requests.codes.ok:
+                if (os.path.exists('./tmp/{}'.format(sub)) == False):
+                        os.mkdir('./tmp/{}'.format(sub))
+                        os.mkdir('./tmp/{}/img'.format(sub))
+                        os.mkdir('./tmp/{}/mp4'.format(sub))
+                folder = get_filetype(file_name)
+                with open("./tmp/{}/{}/{}".format(sub, folder, file_name), 'wb') as f:
+                        for data in r:
+                                f.write(data)
+
 if sub_exists(sub):
     subreddit = reddit.subreddit(sub)
-    with open("./csv/{}.csv".format(sub), mode="w") as file:
-        writer = csv.writer(file, quotechar='"', quoting=csv.QUOTE_NONE)
-        for submission in subreddit.top(limit=200):
-            writer.writerow([submission.id, submission.url])
+    for submission in subreddit.top(limit=limit):
+        if (submission.url.find(".jpg") != -1):
+                urls.append(submission.url)
+        # if (submission.url.find("gfycat") != -1):
+        #         item_name = get_filename_from_url(submission.url)
+        #         response = requests.get("https://api.gfycat.com/v1/gfycats/{}".format(item_name)).json()
+        #         try:
+        #                 gfycatUrl = response["gfyItem"]["mp4Url"]
+        #                 file_name = get_filename_from_url(gfycatUrl)
+        #                 if (os.path.exists('./tmp/{}/mp4/{}'.format(sub, file_name))):
+        #                         print("File already exists!")
+        #                 else:
+        #                         urls.append(gfycatUrl)
+        #         except KeyError:
+        #                 print("Unavailable")
+        # elif (submission.url.find("gifv") == -1):
+        #         urls.append(submission.url)      
     print("Done!")
+
+results = ThreadPool(10).imap_unordered(download_url, urls)
+for r in results:
+    print(r)
