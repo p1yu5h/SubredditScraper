@@ -14,7 +14,7 @@ reddit = praw.Reddit(client_id=config.client_id,
 sub = raw_input("Subreddit to scrape: ")
 subreddit = reddit.subreddit(sub)
 
-with open('./sub_urls.csv', mode='w') as file:
+with open('./csv/{}.csv'.format(sub), mode='w') as file:
     writer = csv.writer(file, quotechar='"', quoting=csv.QUOTE_NONE)
     for submission in subreddit.top(limit=200):
             writer.writerow([submission.id, submission.url])
