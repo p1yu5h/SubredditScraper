@@ -30,4 +30,4 @@ if sub_exists(sub):
         writer = csv.writer(file, quotechar='"', quoting=csv.QUOTE_NONE)
         for submission in subreddit.top(limit=200):
             writer.writerow([submission.id, submission.url])
-        print("Done!")
+    print("Done!")
