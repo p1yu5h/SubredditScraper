@@ -14,7 +14,3 @@ subreddit = reddit.subreddit('memes')
 
 for submission in subreddit.top(limit=100):
     print(submission.url)
-
-
-
-
