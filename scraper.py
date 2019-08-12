@@ -1,8 +1,6 @@
 #! usr/bin/python
 import praw
 from prawcore import NotFound
-import pandas as pd
-import datetime as dt
 import config
 import csv
 import requests
