@@ -42,6 +42,7 @@ def get_filetype(file_name):
                 return "default"
 
 def download_url(url):
+        if(url == ''): return
         file_name = get_filename_from_url(url)
         r = requests.get(url, stream=True)
         if r.status_code == requests.codes.ok:
@@ -49,7 +50,6 @@ def download_url(url):
                         os.mkdir('./tmp/{}'.format(sub))
                         os.mkdir('./tmp/{}/img'.format(sub))
                         os.mkdir('./tmp/{}/mp4'.format(sub))
-                        os.mkdir('./tmp/{}/default'.format(sub))
                 folder = get_filetype(file_name)
                 with open("./tmp/{}/{}/{}".format(sub, folder, file_name), 'wb') as f:
                         for data in r:
@@ -58,7 +58,9 @@ def download_url(url):
 if sub_exists(sub):
     subreddit = reddit.subreddit(sub)
     for submission in subreddit.top(limit=limit):
-        if (submission.url.find(".jpg") != -1 or submission.url.find("gifv") != -1):
+        if (submission.url == ''):
+                pass
+        elif (submission.url.find(".jpg") != -1):
                 urls.append(submission.url)
         elif (submission.url.find("gfycat") != -1):
                 item_name = get_filename_from_url(submission.url)
@@ -71,8 +73,8 @@ if sub_exists(sub):
                         else:
                                 urls.append(gfycatUrl)
                                 print("Added URL for download")
-                except KeyError:
-                        print("Unavailable")     
+                except (KeyError, ValueError) as e:
+                        pass
     print("Done!")
 
 count = 0
