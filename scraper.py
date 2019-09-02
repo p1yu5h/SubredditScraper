@@ -49,6 +49,7 @@ def download_url(url):
                         os.mkdir('./tmp/{}'.format(sub))
                         os.mkdir('./tmp/{}/img'.format(sub))
                         os.mkdir('./tmp/{}/mp4'.format(sub))
+                        os.mkdir('./tmp/{}/default'.format(sub))
                 folder = get_filetype(file_name)
                 with open("./tmp/{}/{}/{}".format(sub, folder, file_name), 'wb') as f:
                         for data in r:
