@@ -57,24 +57,25 @@ def download_url(url):
 if sub_exists(sub):
     subreddit = reddit.subreddit(sub)
     for submission in subreddit.top(limit=limit):
-        if (submission.url.find(".jpg") != -1):
+        if (submission.url.find(".jpg") != -1 or submission.url.find("gifv") != -1):
                 urls.append(submission.url)
-        # if (submission.url.find("gfycat") != -1):
-        #         item_name = get_filename_from_url(submission.url)
-        #         response = requests.get("https://api.gfycat.com/v1/gfycats/{}".format(item_name)).json()
-        #         try:
-        #                 gfycatUrl = response["gfyItem"]["mp4Url"]
-        #                 file_name = get_filename_from_url(gfycatUrl)
-        #                 if (os.path.exists('./tmp/{}/mp4/{}'.format(sub, file_name))):
-        #                         print("File already exists!")
-        #                 else:
-        #                         urls.append(gfycatUrl)
-        #         except KeyError:
-        #                 print("Unavailable")
-        # elif (submission.url.find("gifv") == -1):
-        #         urls.append(submission.url)      
+        elif (submission.url.find("gfycat") != -1):
+                item_name = get_filename_from_url(submission.url)
+                response = requests.get("https://api.gfycat.com/v1/gfycats/{}".format(item_name)).json()
+                try:
+                        gfycatUrl = response["gfyItem"]["mp4Url"]
+                        file_name = get_filename_from_url(gfycatUrl)
+                        if (os.path.exists('./tmp/{}/mp4/{}'.format(sub, file_name))):
+                                print("File already exists! Skipping...")
+                        else:
+                                urls.append(gfycatUrl)
+                                print("Added URL for download")
+                except KeyError:
+                        print("Unavailable")     
     print("Done!")
 
+count = 0
 results = ThreadPool(10).imap_unordered(download_url, urls)
 for r in results:
-    print(r)
+    count+=1    
+    print("Downloading: " + str(count))
