@@ -15,13 +15,17 @@ reddit = praw.Reddit(
     password=config.password,
 )
 
-sub = input("Subreddit to Scrape:")
-limit = int(input("Results limit: "))
+sub = input("Subreddit to Scrape: ")
+try:
+        limit = int(input("Results limit(Default is 50): "))
+except ValueError:
+        limit = 50
 print ("1: All Types")
 print ("2: Images Only")
 print ("3: Videos Only")
-dtype = int(input("Download Types: "))
-if dtype == '':
+try:
+        dtype = int(input("Download Types: "))
+except ValueError:
         dtype = 1
 
 urls = []
@@ -67,7 +71,11 @@ if sub_exists(sub):
         if (submission.url == ''):
                 pass
         elif ((submission.url.find(".jpg") != -1 or submission.url.find(".png") != -1) and (dtype == 1 or dtype == 2)):
-                urls.append(submission.url)
+                file_name = get_filename_from_url(submission.url)
+                if (os.path.exists('./tmp/{}/img/{}'.format(sub, file_name))):
+                        print("File already exists! Skipping...")
+                else:
+                        urls.append(submission.url)
         elif (submission.url.find("gfycat") != -1 and (dtype == 1 or dtype == 3)):
                 item_name = get_filename_from_url(submission.url)
                 response = requests.get("https://api.gfycat.com/v1/gfycats/{}".format(item_name)).json()
