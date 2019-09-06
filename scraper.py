@@ -29,6 +29,7 @@ except ValueError:
         dtype = 1
 
 urls = []
+os.mkdir('./tmp')
 
 def sub_exists(sub):
     try:
