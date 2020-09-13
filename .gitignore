@@ -2,3 +2,6 @@ config.py
 config.pyc
 csv/*
 tmp/*
+__pycache__
+.DS_STORE
+.vscode/*
