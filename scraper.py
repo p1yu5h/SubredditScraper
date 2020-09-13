@@ -20,11 +20,11 @@ try:
     limit = int(input("Results limit(Default is 50): "))
 except ValueError:
     limit = 50
-print("1: All Types")
+print("\n1: All Types")
 print("2: Images Only")
 print("3: Videos Only")
 try:
-    dtype = int(input("Download Types: "))
+    dtype = int(input("\nDownload Types: "))
 except ValueError:
     dtype = 1
 
@@ -73,6 +73,8 @@ def download_url(url):
                 f.write(data)
 
 
+img_url_count = 0
+vid_url_count = 0
 if sub_exists(sub):
     print("Fetching urls for download...")
     subreddit = reddit.subreddit(sub)
@@ -86,6 +88,7 @@ if sub_exists(sub):
             if os.path.exists("./tmp/{}/img/{}".format(sub, file_name)):
                 print("File already exists! Skipping...")
             else:
+                img_url_count += 1
                 urls.append(submission.url)
         elif submission.url.find("gfycat") != -1 and (dtype == 1 or dtype == 3):
             item_name = get_filename_from_url(submission.url)
@@ -98,10 +101,22 @@ if sub_exists(sub):
                 if os.path.exists("./tmp/{}/mp4/{}".format(sub, file_name)):
                     print("File already exists! Skipping...")
                 else:
+                    vid_url_count += 1
                     urls.append(gfycatUrl)
             except (KeyError, ValueError) as e:
                 pass
-    print("Done!")
+    if dtype == 1:
+        print(
+            "Found "
+            + str(img_url_count)
+            + " images and "
+            + str(vid_url_count)
+            + " videos."
+        )
+    elif dtype == 2:
+        print("Found " + str(img_url_count) + " images.")
+    else:
+        print("Found " + str(vid_url_count) + " videos.")
 
 count = 0
 results = ThreadPool(10).imap_unordered(download_url, urls)
@@ -114,3 +129,4 @@ for r in results:
         end="",
         flush=True,
     )
+print("\nDone!")
