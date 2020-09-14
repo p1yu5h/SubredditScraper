@@ -65,8 +65,10 @@ def download_url(url):
     if r.status_code == requests.codes.ok:
         if os.path.exists("./tmp/{}".format(sub)) == False:
             os.mkdir("./tmp/{}".format(sub))
-            os.mkdir("./tmp/{}/img".format(sub))
-            os.mkdir("./tmp/{}/mp4".format(sub))
+            if dtype != 3:  # only images
+                os.mkdir("./tmp/{}/img".format(sub))
+            if dtype != 2:  # only videos
+                os.mkdir("./tmp/{}/mp4".format(sub))
         folder = get_filetype(file_name)
         with open("./tmp/{}/{}/{}".format(sub, folder, file_name), "wb") as f:
             for data in r:
